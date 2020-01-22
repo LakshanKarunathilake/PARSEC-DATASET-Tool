@@ -15,7 +15,7 @@ const csvWriter = createCsvWriter({
 
 const applications = ['ferret', 'dedup']
 const compilers = {ferret: ['gcc', 'gcc-pthreads','tbb'], dedup: ['gcc', 'gcc-pthreads', ]}
-const inputSets = ['test', 'simdev', 'simsmall', 'simmedium', 'simlargeand', 'native']
+const inputSets = ['test', 'simdev', 'simsmall', 'simmedium', 'simlarge', 'native']
 const threads = [1, 2, 4, 8, 16, 32, 64, 128]
 
 /**
