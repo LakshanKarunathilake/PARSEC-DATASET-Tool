@@ -2,6 +2,7 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const csvWriter = createCsvWriter({
     path: 'out.csv',
     header: [
+        {id: 'id', title: 'ID'},
         {id: 'name', title: 'Name'},
         {id: 'threads', title: 'Threads'},
         {id: 'compiler', title: 'Compiler'},
@@ -26,7 +27,7 @@ function createInitialCSV() {
     console.log('calling')
     const DATA = [];
     const record = {name: '', input: '', compiler: '', threads: '', real: '', usr: '', sys: ''}
-
+    let row_index = 1;
     applications.forEach(application => {
         record.name = application;
         const availableCompilers = compilers[application];
@@ -38,6 +39,7 @@ function createInitialCSV() {
                     record.threads = number;
                     for (let i = 1; i <= 96; i = i + 2) {
                         record.cores = i
+                        record.id = row_index++;
                         DATA.push(record)
                         console.log('record', record)
                         csvWriter
