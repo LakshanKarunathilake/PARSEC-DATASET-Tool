@@ -64,8 +64,7 @@ const config = {
             "access-token":
               "ya29.Ima7B7KdCqHHOoRf9IQ4FdfiWUXArptUqasVrm44IlvfXCV_gPGbPhFeWAS_mviPilqN9BaHf88-lAV-8YFl4ZeWkDFCem0uILQnZLrdw3HZiwye3V_CXxT0Rh025Do_bOCfcjFWAxg",
             "cmd-args": "config config-helper --format=json",
-            "cmd-path":
-              "C:\\Users\\lakshan\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd",
+            "cmd-path": "cmd-path': '/google/google-cloud-sdk/bin/gcloud",
             expiry: "2020-01-27T18:47:36Z",
             "expiry-key": "{.credential.token_expiry}",
             "token-key": "{.credential.access_token}"
