@@ -1,3 +1,7 @@
+const { KubeConfig, Client } = require("kubernetes-client");
+const kubeconfig = new KubeConfig();
+const Request = require("kubernetes-client/backends/request");
+
 // Should match the kubeconfig file format exactly
 const config = {
   apiVersion: "v1",
@@ -72,14 +76,9 @@ const config = {
     }
   ]
 };
-const { KubeConfig,Client } = require("kubernetes-client");
-const kubeconfig = new KubeConfig();
-kubeconfig.loadFromString(JSON.stringify(config));
-
-const Request = require("kubernetes-client/backends/request");
-
 
 async function getNamespaces() {
+  kubeconfig.loadFromString(JSON.stringify(config));
   const backend = new Request({ kubeconfig });
   const client = new Client({ backend, version: "1.13" });
   const namespaces = await client.api.v1.namespaces.get();
