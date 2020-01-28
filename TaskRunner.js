@@ -17,23 +17,48 @@ async function main() {
 // main();
 
 async function createTask() {
+  // const job = {
+  //   apiVersion: "batch/v1",
+  //   kind: "Job",
+  //   metadata: {
+  //     name: "example-job"
+  //   },
+  //   spec: {
+  //     template: {
+  //       metadata: {
+  //         name: "example-job"
+  //       },
+  //       spec: {
+  //         containers: [
+  //           {
+  //             name: "pi",
+  //             image: "perl",
+  //             command: ["perl"],
+  //             args: ["-Mbignum=bpi", "-wle", "print bpi(2000)"]
+  //           }
+  //         ],
+  //         restartPolicy: "Never"
+  //       }
+  //     }
+  //   }
+  // };
   const job = {
     apiVersion: "batch/v1",
     kind: "Job",
     metadata: {
-      name: "example-job"
+      name: "parsec-try-1"
     },
     spec: {
       template: {
         metadata: {
-          name: "example-job"
+          name: "parsec-try1"
         },
         spec: {
           containers: [
             {
-              name: "pi",
-              image: "perl",
-              command: ["perl"],
+              name: "parsec-3-0",
+              image: "spirals/parsec-3.0",
+              command: ["spirals/parsec-3.0 -S parsec -a run -p dedup -c gcc-pthreads -i native -t 1"],
               args: ["-Mbignum=bpi", "-wle", "print bpi(2000)"]
             }
           ],
