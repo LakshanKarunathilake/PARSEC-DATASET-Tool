@@ -32,11 +32,13 @@ COPY package.json ./
 RUN npm install
 
 COPY . .
-EXPOSE 8888
+EXPOSE 8080 8888 80
 
 # Authenticate with service account
 RUN gcloud auth activate-service-account \
   test-350@pipeline-concurrency.iam.gserviceaccount.com \
-          --key-file=./pipeline-concurrency-7df4d62b0383.json --project=testproject
+          --key-file=./pipeline-concurrency.json --project=testproject
 
-CMD ["/start.sh"]
+#CMD ["./start.sh"]
+CMD ["node","app.js"]
+
