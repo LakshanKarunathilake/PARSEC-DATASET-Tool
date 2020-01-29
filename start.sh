@@ -1,5 +1,1 @@
-#!/bin/bash
-
-echo "Starting the application"
-node app.js
-/usr/bin/commnad1
+echo node app.js
