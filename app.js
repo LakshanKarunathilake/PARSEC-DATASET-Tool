@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const { createInitialCSV } = require("./CSVHandler");
-require("./TaskRunner");
+// require("./TaskRunner");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -20,8 +20,40 @@ app.post("/result", function(request, response) {
   var query2 = request.body.var2;
 });
 
-app.listen(8888, () => {
-  console.log("Connected to port 8080");
+app.listen(8888, err => {
+  if (err) {
+    console.log("Error occured in app listening", err);
+    return;
+  }
+  console.log("Connected to port 8888");
 });
 
 // createInitialCSV()
+
+const { exec } = require("child_process");
+
+exec("kubectl", (error, stdout, stderr) => {
+  if (error) {
+    console.log(`error: ${error.message}`);
+    return;
+  }
+  if (stderr) {
+    console.log(`stderr: ${stderr}`);
+    return;
+  }
+  console.log("execution done");
+  console.log(`stdout: ${stdout}`);
+});
+
+exec("ping 8.8.8.8", (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+    }
+    if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+    }
+    console.log("execution done");
+    console.log(`stdout: ${stdout}`);
+});
