@@ -37,7 +37,7 @@ EXPOSE 8080 8888 80
 # Authenticate with service account
 RUN gcloud auth activate-service-account \
   test-350@pipeline-concurrency.iam.gserviceaccount.com \
-          --key-file=./pipeline-concurrency.json --project=testproject
+          --key-file=./pipeline-concurrency.json --project=pipeline-concurrency
 
 #CMD ["./start.sh"]
 CMD ["node","app.js"]
