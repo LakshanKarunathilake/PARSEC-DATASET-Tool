@@ -1,8 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-const { createInitialCSV } = require("./CSVHandler");
-require("./TaskRunner");
+const { createInitialJSON } = require("./JSONHandler");
+const {traversInParameterCombination} =require("./TaskRunner");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/getCSV", (req, res) => {
-  res.download("./out.csv");
+  res.download("./parameter-combination.csv");
 });
 
 app.post("/result", function(request, response) {
@@ -28,19 +28,9 @@ app.listen(8888, err => {
   console.log("Connected to port 8888");
 });
 
-// createInitialCSV()
+createInitialJSON()
+    .then(()=>{
+        traversInParameterCombination()
 
-const { exec } = require("child_process");
+    })
 
-// exec("ping 8.8.8.8", (error, stdout, stderr) => {
-//     if (error) {
-//         console.log(`error: ${error.message}`);
-//         return;
-//     }
-//     if (stderr) {
-//         console.log(`stderr: ${stderr}`);
-//         return;
-//     }
-//     console.log("execution done");
-//     console.log(`stdout: ${stdout}`);
-// });
