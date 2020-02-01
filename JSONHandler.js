@@ -43,12 +43,13 @@ function createInitialJSON() {
             record.threads = number;
             record.cores = i;
             record.id = row_index++;
-            DATA[row_index] = record;
+            DATA[record.id] = {...record};
           }
         });
       });
     });
   });
+
   return new Promise((resolve, reject) => {
     fs.writeFile("./parameter-combination.json", JSON.stringify(DATA), err => {
       if (err) {
