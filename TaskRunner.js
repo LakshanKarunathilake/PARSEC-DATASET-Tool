@@ -1,32 +1,37 @@
 const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
-
+let combinations;
 /**
  * Reading from the csv file that includes the combinations of the
  */
 async function traversInParameterCombination() {
   // Reading from the csv file
-  fs.readFile("parameter-combination.json", (err, data) => {
+  fs.readFile("parameter-combination.json", async (err, data) => {
     if (err) {
       console.log("Error reading json file", err);
     }
-    let combinations = JSON.parse(data);
-    Object.values(combinations).forEach(async combination => {
-      console.log("combination", combination);
-      await createTask(combination)
-        .then(() => {
-          console.log("Done");
-          // getLogsOfJob(combination.id);
-        })
-        .catch(err => {
-          console.log("Error in Job Creating", err);
-        });
-    });
+    combinations = JSON.parse(data);
+    await startReadingJobs();
+
+    // let iteration = 1;
+    // for (const combination of Object.values(combinations)) {
+    //   console.log("combination", combination);
+    //   try {
+    //     await createTask(combination);
+    //     if (Object.keys(combinations).length === iteration) {
+    //       console.log("Combinations finished");
+    //     }
+    //     iteration++;
+    //   } catch (e) {
+    //     console.log("Error occured while task creation", e);
+    //     return;
+    //   }
+    // }
   });
 }
 
-async function createTask({ name, input, compiler, threads, cores, id }) {
+function createTask({ name, input, compiler, threads, cores, id }) {
   const job = {
     apiVersion: "batch/v1",
     kind: "Job",
@@ -53,7 +58,7 @@ async function createTask({ name, input, compiler, threads, cores, id }) {
                 "-i",
                 input,
                 "-t",
-                threads
+                `${threads}`
               ],
               resources: {
                 limits: {
@@ -73,7 +78,7 @@ async function createTask({ name, input, compiler, threads, cores, id }) {
   };
   const client = new Client({ version: "1.9" });
   // await client.api.v1.namespaces.post({body:'parsec'})
-  await client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
+  return client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
 }
 
 async function getStatusOfJob() {
@@ -85,26 +90,36 @@ async function getStatusOfJob() {
   console.log("status", jobCreation);
 }
 
-function getLogsOfJob(id) {
+async function startReadingJobs() {
+  for (const combination of Object.values(combinations)) {
+    const data = await getLogsOfJob(combination.id);
+    console.log("data", data);
+  }
+}
+
+async function getLogsOfJob(id) {
   const client = new Client({ version: "1.9" });
-  client.apis.batch.v1
+  const response = await client.apis.batch.v1
     .namespaces("default")
     .jobs(`job-${id}`)
-    .status.get()
-    .then(data => {
-      console.log("status", data);
+    .status.get();
+  if (response.body.status.completionTime) {
+    return new Promise((resolve, reject) => {
       exec(`kubectl logs jobs/job-${id}`, (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);
+          reject(error);
           return;
         }
         if (stderr) {
           console.log(`stderr: ${stderr}`);
           return;
         }
+        resolve(stdout);
         console.log(`stdout: ${stdout}`);
       });
     });
+  }
 }
 
 module.exports = {
