@@ -16,7 +16,7 @@ RUN ./parsec-3.0/bin/parsecmgmt -a build -p dedup -c gcc-pthreads
 RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret
 RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-pthreads
 RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-serial
-RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-tbb
+#RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-tbb
 
 RUN ./parsec-3.0/bin/parsecmgmt -a status
 
