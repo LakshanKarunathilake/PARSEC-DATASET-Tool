@@ -44,7 +44,7 @@ function createTask({ name, input, compiler, threads, cores, id }) {
     apiVersion: "batch/v1",
     kind: "Job",
     metadata: {
-      name: `job-${id}`
+      name: `${name}-${id}`
     },
     spec: {
       template: {
