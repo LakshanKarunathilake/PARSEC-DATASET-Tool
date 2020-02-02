@@ -2,8 +2,7 @@ const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
 let combinations;
-let unCompletedCombinations;
-let nextRoundCombinations;
+let unCompletedCombinations = [];
 
 /**
  * Reading from the csv file that includes the combinations of the
@@ -17,25 +16,23 @@ async function traversInParameterCombination() {
     combinations = JSON.parse(data);
     unCompletedCombinations = Object.keys(combinations);
 
-    // let iteration = 1;
-    // for (const combination of Object.values(combinations)) {
-    //   console.log("combination", combination);
-    //   try {
-    //     await createTask(combination);
-    //     if (Object.keys(combinations).length === iteration) {
-    //       console.log("Combinations finished");
-    // console.log("===========================================");
-    // console.log("Combinations finished");
-    // console.log("===========================================");
-    await startReadingJobs();
-
-    //     }
-    //     iteration++;
-    //   } catch (e) {
-    //     console.log("Error occured while task creation", e);
-    //     return;
-    //   }
-    // }
+    let iteration = 1;
+    for (const combination of Object.values(combinations)) {
+      console.log("combination", combination);
+      try {
+        await createTask(combination);
+        if (Object.keys(combinations).length === iteration) {
+          console.log("===========================================");
+          console.log("Combinations finished");
+          console.log("===========================================");
+          await startReadingJobs();
+        }
+        iteration++;
+      } catch (e) {
+        console.log("Error occured while task creation", e);
+        return;
+      }
+    }
   });
 }
 
@@ -90,35 +87,39 @@ function createTask({ name, input, compiler, threads, cores, id }) {
 }
 
 async function startReadingJobs() {
+  let pendingCombinations = Object.values(combinations);
   do {
-    for (let index = 0; index < unCompletedCombinations.length; index++) {
-      console.log("id", index);
+    for (const combination of pendingCombinations) {
       try {
-        const data = await getLogsOfJob(index + 1);
-        console.log("data", data);
-        unCompletedCombinations.splice(index, 1);
+        const data = await getLogsOfJob(combination.name, combination.id);
+        readProcessingTimes(data);
       } catch (e) {
         console.log("Error in reading jobs", e);
-      }
-      if (index + 1 === unCompletedCombinations.length) {
-        console.log("===========================================");
-        console.log("One round finished");
-        console.log("===========================================");
-        nextRoundCombinations = unCompletedCombinations;
+        if (!e) {
+          unCompletedCombinations.push(combinations[combination.id]);
+        }
+      } finally {
+        if (combination.id === pendingCombinations.length) {
+          console.log("===========================================");
+          console.log("One round finished");
+          console.log("===========================================");
+          pendingCombinations = unCompletedCombinations;
+          unCompletedCombinations = [];
+        }
       }
     }
-  } while (true);
+  } while (pendingCombinations.length > 0);
 }
 
-async function getLogsOfJob(id) {
+async function getLogsOfJob(name, id) {
   const client = new Client({ version: "1.9" });
   const response = await client.apis.batch.v1
     .namespaces("default")
-    .jobs(`job-${id}`)
+    .jobs(`${name}-${id}`)
     .status.get();
   return new Promise((resolve, reject) => {
     if (response.body.status.completionTime) {
-      exec(`kubectl logs jobs/job-${id}`, (error, stdout, stderr) => {
+      exec(`kubectl logs jobs/${name}-${id}`, (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);
           reject(error);
@@ -135,6 +136,16 @@ async function getLogsOfJob(id) {
       reject(false);
     }
   });
+}
+
+function readProcessingTimes(log) {
+  console.log("type", typeof log);
+  const indexOfUserParam = log.indexOf("user");
+  const indexOfSysParam = log.indexOf("sys");
+  const indexOfRealParam = log.indexOf("real");
+  console.log("userValue", log.substr(indexOfUserParam, 15));
+  console.log("sysValue", log.substr(indexOfSysParam, 15));
+  console.log("realValue", log.substr(indexOfRealParam, 15));
 }
 
 module.exports = {
