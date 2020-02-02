@@ -13,7 +13,6 @@ const inputSets = [
   "simlarge",
   "native"
 ];
-const threads = [1, 2, 4, 8, 16, 32, 64, 128];
 
 /**
  * Create the initial CSV file for the dataset preparation
@@ -35,17 +34,24 @@ function createInitialJSON() {
     const availableCompilers = compilers[application];
     availableCompilers.forEach(compiler => {
       inputSets.forEach(input => {
-        threads.forEach(number => {
-          for (let i = 1; i <= 2; i = i + 1) {
-            record.name = application;
-            record.compiler = compiler;
-            record.input = input;
-            record.threads = number;
+        record.name = application;
+        record.compiler = compiler;
+        record.input = input;
+        if (compiler === "gcc") {
+          for (let i = 1; i <= 1; i = i + 1) {
+            record.threads = 1;
             record.cores = i;
-            record.id = row_index++;
-            DATA[record.id] = {...record};
           }
-        });
+        } else {
+          for (let threads = 1; threads <= 96; threads++) {
+            for (let i = 1; i <= 1; i = i + 1) {
+              record.threads = threads;
+              record.cores = i;
+            }
+          }
+        }
+        record.id = row_index++;
+        DATA[record.id] = { ...record };
       });
     });
   });
