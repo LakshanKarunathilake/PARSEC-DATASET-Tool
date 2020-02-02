@@ -89,15 +89,6 @@ function createTask({ name, input, compiler, threads, cores, id }) {
   return client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
 }
 
-async function getStatusOfJob() {
-  const client = new Client({ version: "1.9" });
-  const jobCreation = await client.apis.batch.v1
-    .namespaces("parsec")
-    .jobs("example-job")
-    .status.get();
-  console.log("status", jobCreation);
-}
-
 async function startReadingJobs() {
   do {
     for (let index = 0; index < unCompletedCombinations.length; index++) {
