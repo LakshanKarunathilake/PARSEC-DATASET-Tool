@@ -11,9 +11,14 @@ RUN wget -v https://parsec.cs.princeton.edu/download/3.0/parsec-3.0-input-native
 
 # Extracting the downloaded images
 RUN tar -xvf parsec-3.0-input-native.tar.gz && rm parsec-3.0-input-native.tar.gz
-RUN ./parsec-3.0/bin/parsecmgmt -a build -p all
+RUN ./parsec-3.0/bin/parsecmgmt -a build -p dedup -c gcc
+RUN ./parsec-3.0/bin/parsecmgmt -a build -p dedup -c gcc-pthreads
+RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret
+RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-pthreads
+RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-serial
+RUN ./parsec-3.0/bin/parsecmgmt -a build -p ferret -c gcc-tbb
 
-WORKDIR ./parsec/bin
+RUN ./parsec-3.0/bin/parsecmgmt -a status
 
-CMD parsecmgmt -a stutus
+CMD parsecmgmt -a status
 
