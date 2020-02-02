@@ -2,6 +2,9 @@ const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
 let combinations;
+let unCompletedCombinations;
+let nextRoundCombinations;
+
 /**
  * Reading from the csv file that includes the combinations of the
  */
@@ -12,7 +15,7 @@ async function traversInParameterCombination() {
       console.log("Error reading json file", err);
     }
     combinations = JSON.parse(data);
-    await startReadingJobs();
+    unCompletedCombinations = Object.keys(combinations);
 
     // let iteration = 1;
     // for (const combination of Object.values(combinations)) {
@@ -21,6 +24,11 @@ async function traversInParameterCombination() {
     //     await createTask(combination);
     //     if (Object.keys(combinations).length === iteration) {
     //       console.log("Combinations finished");
+    // console.log("===========================================");
+    // console.log("Combinations finished");
+    // console.log("===========================================");
+    await startReadingJobs();
+
     //     }
     //     iteration++;
     //   } catch (e) {
@@ -91,10 +99,24 @@ async function getStatusOfJob() {
 }
 
 async function startReadingJobs() {
-  for (const combination of Object.values(combinations)) {
-    const data = await getLogsOfJob(combination.id);
-    console.log("data", data);
-  }
+  do {
+    for (let index = 0; index < unCompletedCombinations.length; index++) {
+      console.log("id", index);
+      try {
+        const data = await getLogsOfJob(index + 1);
+        console.log("data", data);
+        unCompletedCombinations.splice(index, 1);
+      } catch (e) {
+        console.log("Error in reading jobs", e);
+      }
+      if (index + 1 === unCompletedCombinations.length) {
+        console.log("===========================================");
+        console.log("One round finished");
+        console.log("===========================================");
+        nextRoundCombinations = unCompletedCombinations;
+      }
+    }
+  } while (true);
 }
 
 async function getLogsOfJob(id) {
@@ -103,8 +125,8 @@ async function getLogsOfJob(id) {
     .namespaces("default")
     .jobs(`job-${id}`)
     .status.get();
-  if (response.body.status.completionTime) {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    if (response.body.status.completionTime) {
       exec(`kubectl logs jobs/job-${id}`, (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);
@@ -116,10 +138,12 @@ async function getLogsOfJob(id) {
           return;
         }
         resolve(stdout);
-        console.log(`stdout: ${stdout}`);
+        // console.log(`stdout: ${stdout}`);
       });
-    });
-  }
+    } else {
+      reject(false);
+    }
+  });
 }
 
 module.exports = {
