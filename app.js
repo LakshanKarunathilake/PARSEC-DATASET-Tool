@@ -31,6 +31,5 @@ app.listen(8888, err => {
 createInitialJSON()
     .then(()=>{
         traversInParameterCombination()
-
     })
 
