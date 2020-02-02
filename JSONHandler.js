@@ -2,7 +2,7 @@ const fs = require("fs");
 
 const applications = ["ferret", "dedup"];
 const compilers = {
-  ferret: ["gcc", "gcc-pthreads", "tbb"],
+  ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
   dedup: ["gcc", "gcc-pthreads"]
 };
 const inputSets = [
