@@ -3,17 +3,18 @@ const fs = require("fs");
 const applications = ["ferret", "dedup"];
 const compilers = {
   ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
-  dedup: ["gcc", "gcc-pthreads"]
+  dedup: ["gcc", "gcc-pthreads"],
+  x264: ["gcc", "gcc-pthreads"]
 };
-const inputSets = ["test", "simdev"];
-// const inputSets = [
-//   "test",
-//   "simdev",
-//   "simsmall",
-//   "simmedium",
-//   "simlarge",
-//   "native"
-// ];
+const inputSets = [
+  "test",
+  "simdev",
+  "simsmall",
+  "simmedium",
+  "simlarge",
+  "native"
+];
+const threads = [1, 2, 4, 8, 16, 32, 64, 128];
 const DATA = {};
 let results;
 /**
@@ -42,17 +43,19 @@ function createInitialJSON() {
           for (let i = 1; i <= 1; i = i + 1) {
             record.threads = 1;
             record.cores = i;
+            record.id = row_index++;
+            DATA[record.id] = { ...record };
           }
         } else {
-          for (let threads = 1; threads <= 2; threads++) {
-            for (let i = 1; i <= 1; i = i + 1) {
-              record.threads = threads;
+          threads.forEach(number => {
+            for (let i = 1; i <= 95; i = i + 1) {
+              record.threads = number;
               record.cores = i;
+              record.id = row_index++;
+              DATA[record.id] = { ...record };
             }
-          }
+          });
         }
-        record.id = row_index++;
-        DATA[record.id] = { ...record };
       });
     });
   });
