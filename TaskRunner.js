@@ -92,7 +92,7 @@ async function startReadingJobs() {
     for (const combination of pendingCombinations) {
       try {
         const data = await getLogsOfJob(combination.name, combination.id);
-        readProcessingTimes(combination, data);
+        await readProcessingTimes(combination, data);
       } catch (e) {
         console.log("Error in reading jobs", e);
         if (!e) {
