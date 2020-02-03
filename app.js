@@ -1,10 +1,9 @@
 const { createInitialJSON } = require("./JSONHandler");
 const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
-const { createLogger, wrapConsole } = require("@r3wt/log");
-const log = createLogger();
-wrapConsole(log);
 
+const command0 =
+  "gcloud auth activate-service-account test-350@pipeline-concurrency.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
 
 const command1 =
   "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
@@ -21,11 +20,13 @@ runCommand()
 setInterval(async () => {
   await runCommand();
 }, 60000);
+// }, 3000000);
 
 async function runCommand() {
   return new Promise((resolve, reject) => {
     try {
-      console.log("run1");
+      const d0 = execSync(command0).toString();
+      console.log("run1", d0);
       const d1 = execSync(command1).toString();
       console.log("run2", d1);
       const d2 = execSync(command2).toString();
