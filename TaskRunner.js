@@ -3,7 +3,6 @@ const fs = require("fs");
 const { exec } = require("child_process");
 const { writeToResultJSONOutput } = require("./JSONHandler");
 let combinations;
-let unCompletedCombinations = [];
 
 /**
  * Reading from the csv file that includes the combinations of the
@@ -17,15 +16,24 @@ async function traversInParameterCombination() {
     combinations = JSON.parse(data);
 
     let iteration = 1;
+    let promises = [];
+    let resolvedCombinations = [];
+
     for (const combination of Object.values(combinations)) {
       console.log("combination", combination);
       try {
-        await createTask(combination);
+        promises.push(createTask(combination));
+        resolvedCombinations.push(combination);
+        if (promises.length === 50) {
+          await Promise.all(promises);
+          startReadingJobs(resolvedCombinations);
+          resolvedCombinations = [];
+          promises = [];
+        }
         if (Object.keys(combinations).length === iteration) {
           console.log("===========================================");
           console.log("Combinations finished");
           console.log("===========================================");
-          await startReadingJobs();
         }
         iteration++;
       } catch (e) {
@@ -85,27 +93,30 @@ function createTask({ name, input, compiler, threads, cores, id }) {
   return client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
 }
 
-async function startReadingJobs() {
-  let pendingCombinations = Object.values(combinations);
+function startReadingJobs(resolovedCombinations) {
+  let unCompletedCombinations = [];
+  let pendingCombinations = resolovedCombinations;
   do {
     for (const combination of pendingCombinations) {
-      try {
-        const data = await getLogsOfJob(combination.name, combination.id);
-        await readProcessingTimes(combination, data);
-      } catch (e) {
-        console.log("Error in reading jobs", e);
-        if (!e) {
-          unCompletedCombinations.push(combinations[combination.id]);
-        }
-      } finally {
-        if (combination.id === pendingCombinations.length) {
-          console.log("===========================================");
-          console.log("One round finished");
-          console.log("===========================================");
-          pendingCombinations = unCompletedCombinations;
-          unCompletedCombinations = [];
-        }
-      }
+      getLogsOfJob(combination.name, combination.id)
+        .then(data => {
+          return readProcessingTimes(combination, data);
+        })
+        .catch(e => {
+          console.log("Error in reading jobs", e);
+          if (!e) {
+            unCompletedCombinations.push(combinations[combination.id]);
+          }
+        })
+        .finally(() => {
+          if (combination.id === pendingCombinations.length) {
+            console.log("===========================================");
+            console.log("One round finished");
+            console.log("===========================================");
+            pendingCombinations = unCompletedCombinations;
+            unCompletedCombinations = [];
+          }
+        });
     }
   } while (pendingCombinations.length > 0);
   console.log("===========================================");
@@ -115,29 +126,31 @@ async function startReadingJobs() {
 
 async function getLogsOfJob(name, id) {
   const client = new Client({ version: "1.9" });
-  const response = await client.apis.batch.v1
+  client.apis.batch.v1
     .namespaces("default")
     .jobs(`${name}-${id}`)
-    .status.get();
-  return new Promise((resolve, reject) => {
-    if (response.body.status.completionTime) {
-      exec(`kubectl logs jobs/${name}-${id}`, (error, stdout, stderr) => {
-        if (error) {
-          console.log(`error: ${error.message}`);
-          reject(error);
-          return;
+    .status.get()
+    .then(response => {
+      return new Promise((resolve, reject) => {
+        if (response.body.status.completionTime) {
+          exec(`kubectl logs jobs/${name}-${id}`, (error, stdout, stderr) => {
+            if (error) {
+              console.log(`error: ${error.message}`);
+              reject(error);
+              return;
+            }
+            if (stderr) {
+              console.log(`stderr: ${stderr}`);
+              return;
+            }
+            resolve(stdout);
+            // console.log(`stdout: ${stdout}`);
+          });
+        } else {
+          reject(false);
         }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        resolve(stdout);
-        // console.log(`stdout: ${stdout}`);
       });
-    } else {
-      reject(false);
-    }
-  });
+    });
 }
 
 async function readProcessingTimes(combination, log) {
@@ -156,10 +169,13 @@ async function readProcessingTimes(combination, log) {
     .replace("\t", "");
   const client = new Client({ version: "1.9" });
 
-  await client.apis.batch.v1
+  client.apis.batch.v1
     .namespaces("default")
     .jobs(`${name}-${id}`)
-    .delete();
+    .delete()
+    .then(() => {
+      console.log(`Job ${name}-${id} is deleted`);
+    });
   console.log("userValue", userVal, "sysVal", sysVal, "realVal", realVal);
   writeToResultJSONOutput(combination, userVal, realVal, sysVal);
 }

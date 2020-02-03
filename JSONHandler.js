@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const applications = ["ferret", "dedup","x264"];
+const applications = ["ferret", "dedup", "x264"];
 const compilers = {
   ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
   dedup: ["gcc", "gcc-pthreads"],
@@ -73,24 +73,16 @@ function createInitialJSON() {
 }
 
 function writeToResultJSONOutput({ id, name }, user, real, sys) {
-  if (!results) {
-    results = { ...DATA };
-  }
-  results[id].usr = user;
-  results[id].real = real;
-  results[id].sys = sys;
-  if (id === Object.keys(DATA).length) {
-    return new Promise((resolve, reject) => {
-      fs.writeFile("./results.json", JSON.stringify(results), err => {
-        if (err) {
-          console.log("error occured", err);
-          reject("Failure in writing the file");
-        }
-        console.log("Parameter combinations are generated successfully");
-        resolve("Done");
-      });
-    });
-  }
+  const record = DATA[id];
+  record.usr = user;
+  record.real = real;
+  record.sys = sys;
+  fs.appendFile("./results.json", JSON.stringify(record), err => {
+    if (err) {
+      console.log("error occured", err);
+    }
+    console.log("Parameter combinations are generated successfully");
+  });
 }
 
 module.exports = { createInitialJSON, writeToResultJSONOutput };

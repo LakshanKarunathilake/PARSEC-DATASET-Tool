@@ -42,3 +42,5 @@ RUN gcloud auth activate-service-account \
 #CMD ["./start.sh"]
 CMD ["node","app.js"]
 
+
+gcloud auth activate-service-account test-350@pipeline-concurrency.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency
