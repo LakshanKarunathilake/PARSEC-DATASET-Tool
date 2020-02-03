@@ -5,20 +5,21 @@ const compilers = {
   ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
   dedup: ["gcc", "gcc-pthreads"]
 };
-const inputSets = [
-  "test",
-  "simdev",
-  "simsmall",
-  "simmedium",
-  "simlarge",
-  "native"
-];
-
+const inputSets = ["test", "simdev"];
+// const inputSets = [
+//   "test",
+//   "simdev",
+//   "simsmall",
+//   "simmedium",
+//   "simlarge",
+//   "native"
+// ];
+const DATA = {};
+let results;
 /**
  * Create the initial CSV file for the dataset preparation
  */
 function createInitialJSON() {
-  const DATA = {};
   const record = {
     id: "",
     name: "",
@@ -43,7 +44,7 @@ function createInitialJSON() {
             record.cores = i;
           }
         } else {
-          for (let threads = 1; threads <= 96; threads++) {
+          for (let threads = 1; threads <= 2; threads++) {
             for (let i = 1; i <= 1; i = i + 1) {
               record.threads = threads;
               record.cores = i;
