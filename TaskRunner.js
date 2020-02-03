@@ -82,7 +82,6 @@ function createTask({ name, input, compiler, threads, cores, id }) {
     }
   };
   const client = new Client({ version: "1.9" });
-  // await client.api.v1.namespaces.post({body:'parsec'})
   return client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
 }
 
