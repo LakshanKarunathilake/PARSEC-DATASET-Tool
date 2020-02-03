@@ -1,15 +1,12 @@
 const { createInitialJSON } = require("./JSONHandler");
 const { traversInParameterCombination } = require("./TaskRunner");
-const { exec } = require("child_process");
+const { execSync } = require("child_process");
 
 const command1 =
   "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
 const command2 = "kubectl cluster-info";
 
-runCommand(command1)
-  .then(() => {
-    return runCommand(command2);
-  })
+runCommand()
   .then(() => {
     createInitialJSON();
   })
@@ -17,26 +14,22 @@ runCommand(command1)
     traversInParameterCombination();
   });
 
-setInterval(() => {
-  runCommand(command1, runCommand(command2)).then(async () => {
-  });
-}, 60000);
+setInterval(async () => {
+  await runCommand();
+}, 600000);
 
-async function runCommand(command, callback) {
+async function runCommand() {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`);
-        reject(error);
-        return;
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        resolve(stderr);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-      resolve(stdout);
-    });
-  }, callback);
+    try {
+      console.log("run1");
+      const d1 = execSync(command1).toString();
+      console.log("run2",d1);
+      const d2 = execSync(command2).toString();
+      console.log("run3",d2);
+      resolve();
+    } catch (e) {
+      console.log("error", e);
+      reject(e);
+    }
+  });
 }
