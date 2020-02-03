@@ -141,21 +141,26 @@ async function getLogsOfJob(name, id) {
   });
 }
 
-function readProcessingTimes(combination, log) {
+async function readProcessingTimes(combination, log) {
+  const { name, id } = combination;
   const userVal = log
     .substr(log.indexOf("user"), 15)
     .substr(4, 9)
     .replace("\t", "");
   const sysVal = log
     .substr(log.indexOf("sys"), 15)
-    .substr(4, 9)
+    .substr(4, 8)
     .replace("\t", "");
   const realVal = log
     .substr(log.indexOf("real"), 15)
     .substr(4, 9)
     .replace("\t", "");
+  const client = new Client({ version: "1.9" });
 
-
+  await client.apis.batch.v1
+    .namespaces("default")
+    .jobs(`${name}-${id}`)
+    .delete();
   console.log("userValue", userVal, "sysVal", sysVal, "realVal", realVal);
   writeToResultJSONOutput(combination, userVal, realVal, sysVal);
 }

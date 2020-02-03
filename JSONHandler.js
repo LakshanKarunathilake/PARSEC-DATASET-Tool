@@ -73,9 +73,9 @@ function writeToResultJSONOutput({ id, name }, user, real, sys) {
   if (!results) {
     results = { ...DATA };
   }
-  results[id].user = user.replace("\t", "");
-  results[id].real = real.replace("\t", "");
-  results[id].sys = sys.replace("\t", "");
+  results[id].usr = user;
+  results[id].real = real;
+  results[id].sys = sys;
   if (id === Object.keys(DATA).length) {
     return new Promise((resolve, reject) => {
       fs.writeFile("./results.json", JSON.stringify(results), err => {

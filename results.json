@@ -1,1 +1,112 @@
-{"1":{"id":1,"name":"ferret","input":"test","compiler":"gcc","threads":1,"real":"0m0.021s","usr":0,"sys":"0m0.006s\n","cores":1,"user":"0m0.006s"},"2":{"id":2,"name":"ferret","input":"simdev","compiler":"gcc","threads":1,"real":"0m0.031s","usr":0,"sys":"0m0.012s\n","cores":1,"user":"0m0.036s"},"3":{"id":3,"name":"ferret","input":"test","compiler":"gcc-pthreads","threads":2,"real":"0m0.017s","usr":0,"sys":"0m0.004s\n","cores":1,"user":"0m0.008s"},"4":{"id":4,"name":"ferret","input":"simdev","compiler":"gcc-pthreads","threads":2,"real":"0m0.050s","usr":0,"sys":"0m0.009s\n","cores":1,"user":"0m0.041s"},"5":{"id":5,"name":"ferret","input":"test","compiler":"gcc-tbb","threads":2,"real":"0m0.017s","usr":0,"sys":"0m0.006s\n","cores":1,"user":"0m0.009s"},"6":{"id":6,"name":"ferret","input":"simdev","compiler":"gcc-tbb","threads":2,"real":"0m0.030s","usr":0,"sys":"0m0.011s\n","cores":1,"user":"0m0.035s"},"7":{"id":7,"name":"dedup","input":"test","compiler":"gcc","threads":1,"real":"0m0.012s","usr":0,"sys":"0m0.008s\n","cores":1,"user":"0m0.002s"},"8":{"id":8,"name":"dedup","input":"simdev","compiler":"gcc","threads":1,"real":"0m0.141s","usr":0,"sys":"0m0.044s\n","cores":1,"user":"0m0.084s"},"9":{"id":9,"name":"dedup","input":"test","compiler":"gcc-pthreads","threads":2,"real":"0m0.008s","usr":0,"sys":"0m0.006s\n","cores":1,"user":"0m0.002s"},"10":{"id":10,"name":"dedup","input":"simdev","compiler":"gcc-pthreads","threads":2,"real":"0m0.117s","usr":0,"sys":"0m0.035s\n","cores":1,"user":"0m0.074s"}}
+{
+  "1": {
+    "id": 1,
+    "name": "ferret",
+    "input": "test",
+    "compiler": "gcc",
+    "threads": 1,
+    "real": "0m0.018",
+    "usr": "0m0.011s",
+    "sys": "0m0.005s\n",
+    "cores": 1
+  },
+  "2": {
+    "id": 2,
+    "name": "ferret",
+    "input": "simdev",
+    "compiler": "gcc",
+    "threads": 1,
+    "real": "0m0.060",
+    "usr": "0m0.035s",
+    "sys": "0m0.013s\n",
+    "cores": 1
+  },
+  "3": {
+    "id": 3,
+    "name": "ferret",
+    "input": "test",
+    "compiler": "gcc-pthreads",
+    "threads": 2,
+    "real": "0m0.012",
+    "usr": "0m0.009s",
+    "sys": "0m0.002s\n",
+    "cores": 1
+  },
+  "4": {
+    "id": 4,
+    "name": "ferret",
+    "input": "simdev",
+    "compiler": "gcc-pthreads",
+    "threads": 2,
+    "real": "0m0.060",
+    "usr": "0m0.041s",
+    "sys": "0m0.010s\n",
+    "cores": 1
+  },
+  "5": {
+    "id": 5,
+    "name": "ferret",
+    "input": "test",
+    "compiler": "gcc-tbb",
+    "threads": 2,
+    "real": "0m0.014",
+    "usr": "0m0.007s",
+    "sys": "0m0.006s\n",
+    "cores": 1
+  },
+  "6": {
+    "id": 6,
+    "name": "ferret",
+    "input": "simdev",
+    "compiler": "gcc-tbb",
+    "threads": 2,
+    "real": "0m0.029",
+    "usr": "0m0.038s",
+    "sys": "0m0.008s\n",
+    "cores": 1
+  },
+  "7": {
+    "id": 7,
+    "name": "dedup",
+    "input": "test",
+    "compiler": "gcc",
+    "threads": 1,
+    "real": "0m0.008",
+    "usr": "0m0.003s",
+    "sys": "0m0.006s\n",
+    "cores": 1
+  },
+  "8": {
+    "id": 8,
+    "name": "dedup",
+    "input": "simdev",
+    "compiler": "gcc",
+    "threads": 1,
+    "real": "0m0.133",
+    "usr": "0m0.079s",
+    "sys": "0m0.053s\n",
+    "cores": 1
+  },
+  "9": {
+    "id": 9,
+    "name": "dedup",
+    "input": "test",
+    "compiler": "gcc-pthreads",
+    "threads": 2,
+    "real": "0m0.010",
+    "usr": "0m0.004s",
+    "sys": "0m0.006s\n",
+    "cores": 1
+  },
+  "10": {
+    "id": 10,
+    "name": "dedup",
+    "input": "simdev",
+    "compiler": "gcc-pthreads",
+    "threads": 2,
+    "real": "0m0.117",
+    "usr": "0m0.080s",
+    "sys": "0m0.029s\n",
+    "cores": 1
+  }
+}
