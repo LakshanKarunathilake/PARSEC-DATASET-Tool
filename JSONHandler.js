@@ -68,4 +68,25 @@ function createInitialJSON() {
   });
 }
 
-module.exports = { createInitialJSON };
+function writeToResultJSONOutput({ id, name }, user, real, sys) {
+  if (!results) {
+    results = { ...DATA };
+  }
+  results[id].user = user.replace("\t", "");
+  results[id].real = real.replace("\t", "");
+  results[id].sys = sys.replace("\t", "");
+  if (id === Object.keys(DATA).length) {
+    return new Promise((resolve, reject) => {
+      fs.writeFile("./results.json", JSON.stringify(results), err => {
+        if (err) {
+          console.log("error occured", err);
+          reject("Failure in writing the file");
+        }
+        console.log("Parameter combinations are generated successfully");
+        resolve("Done");
+      });
+    });
+  }
+}
+
+module.exports = { createInitialJSON, writeToResultJSONOutput };
