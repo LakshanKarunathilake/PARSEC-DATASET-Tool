@@ -1,6 +1,7 @@
 const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
+const { writeToResultJSONOutput } = require("./JSONHandler");
 let combinations;
 let unCompletedCombinations = [];
 
@@ -14,7 +15,6 @@ async function traversInParameterCombination() {
       console.log("Error reading json file", err);
     }
     combinations = JSON.parse(data);
-    unCompletedCombinations = Object.keys(combinations);
 
     let iteration = 1;
     for (const combination of Object.values(combinations)) {
@@ -92,7 +92,7 @@ async function startReadingJobs() {
     for (const combination of pendingCombinations) {
       try {
         const data = await getLogsOfJob(combination.name, combination.id);
-        readProcessingTimes(data);
+        readProcessingTimes(combination, data);
       } catch (e) {
         console.log("Error in reading jobs", e);
         if (!e) {
@@ -109,6 +109,9 @@ async function startReadingJobs() {
       }
     }
   } while (pendingCombinations.length > 0);
+  console.log("===========================================");
+  console.log("Finished reading logs");
+  console.log("===========================================");
 }
 
 async function getLogsOfJob(name, id) {
@@ -138,14 +141,23 @@ async function getLogsOfJob(name, id) {
   });
 }
 
-function readProcessingTimes(log) {
-  console.log("type", typeof log);
-  const indexOfUserParam = log.indexOf("user");
-  const indexOfSysParam = log.indexOf("sys");
-  const indexOfRealParam = log.indexOf("real");
-  console.log("userValue", log.substr(indexOfUserParam, 15));
-  console.log("sysValue", log.substr(indexOfSysParam, 15));
-  console.log("realValue", log.substr(indexOfRealParam, 15));
+function readProcessingTimes(combination, log) {
+  const userVal = log
+    .substr(log.indexOf("user"), 15)
+    .substr(4, 9)
+    .replace("\t", "");
+  const sysVal = log
+    .substr(log.indexOf("sys"), 15)
+    .substr(4, 9)
+    .replace("\t", "");
+  const realVal = log
+    .substr(log.indexOf("real"), 15)
+    .substr(4, 9)
+    .replace("\t", "");
+
+
+  console.log("userValue", userVal, "sysVal", sysVal, "realVal", realVal);
+  writeToResultJSONOutput(combination, userVal, realVal, sysVal);
 }
 
 module.exports = {
