@@ -13,7 +13,7 @@ runCommand(command1)
   .then(() => {
     createInitialJSON();
   })
-  .then(value => {
+  .then(() => {
     traversInParameterCombination();
   });
 
