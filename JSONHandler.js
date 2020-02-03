@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const applications = ["ferret", "dedup"];
+const applications = ["ferret", "dedup","x264"];
 const compilers = {
   ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
   dedup: ["gcc", "gcc-pthreads"],
