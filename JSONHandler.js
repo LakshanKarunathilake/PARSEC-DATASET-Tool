@@ -59,17 +59,8 @@ function createInitialJSON() {
       });
     });
   });
-
-  return new Promise((resolve, reject) => {
-    fs.writeFile("./parameter-combination.json", JSON.stringify(DATA), err => {
-      if (err) {
-        console.log("error occured", err);
-        reject("Failure in writing the file");
-      }
-      console.log("Parameter combinations are generated successfully");
-      resolve("Done");
-    });
-  });
+  results = DATA;
+  writeTheResultsToFile("./parameter-combination.json", JSON.stringify(DATA));
 }
 
 function writeToResultJSONOutput({ id, name }, user, real, sys) {
@@ -79,17 +70,13 @@ function writeToResultJSONOutput({ id, name }, user, real, sys) {
   results[id].usr = user;
   results[id].real = real;
   results[id].sys = sys;
-  if (id === Object.keys(DATA).length) {
-    return new Promise((resolve, reject) => {
-      fs.writeFile("./results.json", JSON.stringify(results), err => {
-        if (err) {
-          console.log("error occured", err);
-          reject("Failure in writing the file");
-        }
-        console.log("Parameter combinations are generated successfully");
-        resolve("Done");
-      });
-    });
+}
+
+function writeTheResultsToFile(path, data = results) {
+  try {
+    fs.writeFileSync(path, data);
+  } catch (e) {
+    console.log("Error occured while writing the data to the location", path);
   }
 }
 
