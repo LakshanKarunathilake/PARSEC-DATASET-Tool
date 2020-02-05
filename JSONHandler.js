@@ -1,22 +1,15 @@
 const fs = require("fs");
 
-const applications = ["ferret", "dedup","x264"];
+const applications = ["ferret", "dedup", "x264"];
 const compilers = {
   ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
   dedup: ["gcc", "gcc-pthreads"],
   x264: ["gcc", "gcc-pthreads"]
 };
-const inputSets = [
-  "test",
-  "simdev",
-  "simsmall",
-  "simmedium",
-  "simlarge",
-  "native"
-];
-const threads = [1, 2, 4, 8, 16, 32, 64, 128];
+const inputSets = ["simdev", "simsmall", "simmedium", "simlarge", "native"];
+const threads = [1, 2, 4, 8, 16, 32];
 const DATA = {};
-let results;
+let results = JSON.parse(fs.readFileSync("./results.json", "utf8"));
 /**
  * Create the initial CSV file for the dataset preparation
  */
@@ -48,7 +41,7 @@ function createInitialJSON() {
           }
         } else {
           threads.forEach(number => {
-            for (let i = 1; i <= 95; i = i + 1) {
+            for (let i = 1; i <= 32; i = i + 1) {
               record.threads = number;
               record.cores = i;
               record.id = row_index++;
@@ -73,24 +66,19 @@ function createInitialJSON() {
 }
 
 function writeToResultJSONOutput({ id, name }, user, real, sys) {
-  if (!results) {
-    results = { ...DATA };
-  }
-  results[id].usr = user;
-  results[id].real = real;
-  results[id].sys = sys;
-  if (id === Object.keys(DATA).length) {
-    return new Promise((resolve, reject) => {
-      fs.writeFile("./results.json", JSON.stringify(results), err => {
-        if (err) {
-          console.log("error occured", err);
-          reject("Failure in writing the file");
-        }
-        console.log("Parameter combinations are generated successfully");
-        resolve("Done");
-      });
+  return new Promise((resolve, reject) => {
+    results[id].usr = user;
+    results[id].real = real;
+    results[id].sys = sys;
+    fs.writeFile("./results.json", JSON.stringify(results), err => {
+      if (err) {
+        console.log("error occured", err);
+        reject("Failure in writing the file");
+      }
+      console.log("Results are written successfully");
+      resolve("Done");
     });
-  }
+  });
 }
 
 module.exports = { createInitialJSON, writeToResultJSONOutput };
