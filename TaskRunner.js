@@ -17,15 +17,25 @@ async function traversInParameterCombination() {
     combinations = JSON.parse(data);
 
     let iteration = 1;
+    let promises = [];
+    let resolvedPromises = [];
     for (const combination of Object.values(combinations)) {
-      console.log("combination", combination);
+      console.log("creating job", combination.id);
       try {
-        await createTask(combination);
+        promises.push(createTask(combination));
+        resolvedPromises.push(combination);
+        if (promises.length === 50) {
+          console.log("+=============== Resolveing promises");
+          const output = await Promise.all(promises);
+          console.log("=================Resolved Promises", output);
+          await startReadingJobs(resolvedPromises);
+          promises = [];
+          resolvedPromises = [];
+        }
         if (Object.keys(combinations).length === iteration) {
           console.log("===========================================");
           console.log("Combinations finished");
           console.log("===========================================");
-          await startReadingJobs();
         }
         iteration++;
       } catch (e) {
@@ -78,42 +88,46 @@ function createTask({ name, input, compiler, threads, cores, id }) {
           restartPolicy: "Never"
         }
       },
-      backoffLimit: 0
+      backoffLimit: 2
     }
   };
   const client = new Client({ version: "1.9" });
   return client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
 }
 
-async function startReadingJobs() {
-  let pendingCombinations = Object.values(combinations);
+async function startReadingJobs(resolvedPromises) {
+  let pendingCombinations = resolvedPromises;
   do {
+    let promises = [];
+    let unresolvedPromises = [];
+
     for (const combination of pendingCombinations) {
-      try {
-        const data = await getLogsOfJob(combination.name, combination.id);
-        await readProcessingTimes(combination, data);
-      } catch (e) {
-        console.log("Error in reading jobs", e);
-        if (!e) {
-          unCompletedCombinations.push(combinations[combination.id]);
-        }
-      } finally {
-        if (combination.id === pendingCombinations.length) {
-          console.log("===========================================");
-          console.log("One round finished");
-          console.log("===========================================");
-          pendingCombinations = unCompletedCombinations;
-          unCompletedCombinations = [];
-        }
+      promises.push(getLogsOfJob(combination));
+      if (combination.id === pendingCombinations.length) {
+        console.log("===========================================");
+        console.log("One round finished");
+        console.log("===========================================");
+        const results = await Promise.all(
+          promises.map(p =>
+            p.catch(e => {
+              return e;
+            })
+          )
+        );
+        unresolvedPromises = results
+          .filter(row => row.state === "error")
+          .map(row => row.data);
       }
     }
+    pendingCombinations = unresolvedPromises;
   } while (pendingCombinations.length > 0);
   console.log("===========================================");
   console.log("Finished reading logs");
   console.log("===========================================");
 }
 
-async function getLogsOfJob(name, id) {
+async function getLogsOfJob(combination) {
+  const { id, name } = combination;
   const client = new Client({ version: "1.9" });
   const response = await client.apis.batch.v1
     .namespaces("default")
@@ -121,21 +135,21 @@ async function getLogsOfJob(name, id) {
     .status.get();
   return new Promise((resolve, reject) => {
     if (response.body.status.completionTime) {
-      exec(`kubectl logs jobs/${name}-${id}`, (error, stdout, stderr) => {
+      exec(`kubectl logs jobs/${name}-${id}`, async (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);
-          reject(error);
+          reject(id);
           return;
         }
         if (stderr) {
           console.log(`stderr: ${stderr}`);
           return;
         }
-        resolve(stdout);
-        // console.log(`stdout: ${stdout}`);
+        await readProcessingTimes(combination, stdout);
+        resolve({ state: "success", data: combination });
       });
     } else {
-      reject(false);
+      reject({ state: "error", data: combination });
     }
   });
 }
@@ -155,13 +169,16 @@ async function readProcessingTimes(combination, log) {
     .substr(4, 9)
     .replace("\t", "");
   const client = new Client({ version: "1.9" });
-
-  await client.apis.batch.v1
-    .namespaces("default")
-    .jobs(`${name}-${id}`)
-    .delete();
-  console.log("userValue", userVal, "sysVal", sysVal, "realVal", realVal);
-  writeToResultJSONOutput(combination, userVal, realVal, sysVal);
+  try {
+    client.apis.batch.v1
+      .namespaces("default")
+      .jobs(`${name}-${id}`)
+      .delete();
+    console.log(id, "userValue", userVal, "sysVal", sysVal, "realVal", realVal);
+    await writeToResultJSONOutput(combination, userVal, realVal, sysVal);
+  } catch (e) {
+    console.log("Error occured in writing output and deletion");
+  }
 }
 
 module.exports = {
