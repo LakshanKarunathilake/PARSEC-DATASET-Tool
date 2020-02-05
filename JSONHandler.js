@@ -9,7 +9,7 @@ const compilers = {
 const inputSets = ["simdev", "simsmall", "simmedium", "simlarge", "native"];
 const threads = [1, 2, 4, 8, 16, 32];
 const DATA = {};
-let results = JSON.parse(fs.readFileSync("./results.json", "utf8"));
+let results;
 /**
  * Create the initial CSV file for the dataset preparation
  */
@@ -52,33 +52,29 @@ function createInitialJSON() {
       });
     });
   });
-
-  return new Promise((resolve, reject) => {
-    fs.writeFile("./parameter-combination.json", JSON.stringify(DATA), err => {
-      if (err) {
-        console.log("error occured", err);
-        reject("Failure in writing the file");
-      }
-      console.log("Parameter combinations are generated successfully");
-      resolve("Done");
-    });
-  });
+  results = DATA;
+  writeTheResultsToFile("./parameter-combination.json", JSON.stringify(DATA));
 }
 
-function writeToResultJSONOutput({ id, name }, user, real, sys) {
+function writeToResult({ id, name }, user, real, sys) {
   return new Promise((resolve, reject) => {
     results[id].usr = user;
     results[id].real = real;
     results[id].sys = sys;
-    fs.writeFile("./results.json", JSON.stringify(results), err => {
-      if (err) {
-        console.log("error occured", err);
-        reject("Failure in writing the file");
-      }
-      console.log("Results are written successfully");
-      resolve("Done");
-    });
   });
 }
 
-module.exports = { createInitialJSON, writeToResultJSONOutput };
+/**
+ * Writing data to a file
+ * @param path
+ * @param data
+ */
+function writeTheResultsToFile(path = "./results.json", data = results) {
+  try {
+    fs.writeFileSync(path, data);
+  } catch (e) {
+    console.log("Error creation file in the location", path, e);
+  }
+}
+
+module.exports = { createInitialJSON, writeToResultJSONOutput: writeToResult };
