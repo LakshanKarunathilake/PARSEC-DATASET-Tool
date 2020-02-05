@@ -18,9 +18,9 @@ runCommand()
   });
 
 setInterval(async () => {
+  console.log("STarting time", new Date().getTime());
   await runCommand();
-}, 60000);
-// }, 3000000);
+}, 1800000);
 
 async function runCommand() {
   return new Promise((resolve, reject) => {
