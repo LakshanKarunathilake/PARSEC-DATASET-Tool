@@ -6,7 +6,7 @@ const command0 =
   "gcloud auth activate-service-account lakshankarunathilake@pipeline-concurrency-267205.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
 
 const command1 =
-  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
+  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency-267205";
 const command2 = "kubectl cluster-info";
 
 runCommand()
