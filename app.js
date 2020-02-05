@@ -1,4 +1,4 @@
-const { createInitialJSON } = require("./JSONHandler");
+const { createInitialJSON, writeTheResultsToFile } = require("./JSONHandler");
 const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
 
@@ -20,6 +20,7 @@ runCommand()
 setInterval(async () => {
   console.log("STarting time", new Date().getTime());
   await runCommand();
+  writeTheResultsToFile();
 }, 1800000);
 
 async function runCommand() {

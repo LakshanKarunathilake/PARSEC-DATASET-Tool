@@ -77,4 +77,8 @@ function writeTheResultsToFile(path = "./results.json", data = results) {
   }
 }
 
-module.exports = { createInitialJSON, writeToResultJSONOutput: writeToResult };
+module.exports = {
+  createInitialJSON,
+  writeToResultJSONOutput: writeToResult,
+  writeTheResultsToFile
+};
