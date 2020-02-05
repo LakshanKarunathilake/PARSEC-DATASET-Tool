@@ -3,7 +3,7 @@ const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
 
 const command0 =
-  "gcloud auth activate-service-account test-350@pipeline-concurrency.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
+  "gcloud auth activate-service-account lakshankarunathilake@pipeline-concurrency-267205.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
 
 const command1 =
   "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
