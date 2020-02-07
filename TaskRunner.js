@@ -1,9 +1,10 @@
 const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
-const { writeToResultJSONOutput } = require("./JSONHandler");
+const { writeToResult, writeTheResultsToFile } = require("./JSONHandler");
 let combinations;
 let unCompletedCombinations = [];
+let combinationsFinished = false;
 
 /**
  * Reading from the csv file that includes the combinations of the
@@ -24,10 +25,10 @@ async function traversInParameterCombination() {
       try {
         promises.push(createTask(combination));
         resolvedPromises.push(combination);
-        if (promises.length === 50) {
+        if (promises.length === 100) {
           console.log("+=============== Resolveing promises");
-          const output = await Promise.all(promises);
-          console.log("=================Resolved Promises", output);
+          await Promise.all(promises);
+          console.log("=================Resolved Promises");
           await startReadingJobs(resolvedPromises);
           promises = [];
           resolvedPromises = [];
@@ -36,11 +37,12 @@ async function traversInParameterCombination() {
           console.log("===========================================");
           console.log("Combinations finished");
           console.log("===========================================");
+          writeTheResultsToFile();
         }
         iteration++;
       } catch (e) {
         console.log("Error occured while task creation", e);
-        return;
+        writeTheResultsToFile();
       }
     }
   });
@@ -96,65 +98,84 @@ function createTask({ name, input, compiler, threads, cores, id }) {
 }
 
 async function startReadingJobs(resolvedPromises) {
-  let pendingCombinations = resolvedPromises;
+  let pendingCombinations = resolvedPromises.concat(unCompletedCombinations);
+  let iteration = 1;
   do {
     let promises = [];
     let unresolvedPromises = [];
-
+    let index = 1;
     for (const combination of pendingCombinations) {
       promises.push(getLogsOfJob(combination));
-      if (combination.id === pendingCombinations.length) {
+      if (index === pendingCombinations.length) {
         console.log("===========================================");
-        console.log("One round finished");
-        console.log("===========================================");
-        const results = await Promise.all(
-          promises.map(p =>
-            p.catch(e => {
-              return e;
-            })
-          )
+        console.log(
+          `${iteration} round finished,promises count ${promises.length}`
         );
-        unresolvedPromises = results
-          .filter(row => row.state === "error")
-          .map(row => row.data);
+        console.log("===========================================");
+        try {
+          const results = await Promise.all(
+            promises.map(p =>
+              p.catch(e => {
+                return e;
+              })
+            )
+          );
+          unresolvedPromises = results
+            .filter(row => row.state === "error")
+            .map(row => row.data);
+        } catch (e) {
+          console.log("Error occured in inner round", e);
+        }
       }
+      index++;
     }
     pendingCombinations = unresolvedPromises;
-  } while (pendingCombinations.length > 0);
+    iteration++;
+  } while (pendingCombinations.length > 50 || combinationsFinished);
+  unCompletedCombinations = pendingCombinations;
   console.log("===========================================");
   console.log("Finished reading logs");
+  console.log("Still Pending logs of : ", unCompletedCombinations.length);
   console.log("===========================================");
 }
 
 async function getLogsOfJob(combination) {
   const { id, name } = combination;
   const client = new Client({ version: "1.9" });
-  const response = await client.apis.batch.v1
-    .namespaces("default")
-    .jobs(`${name}-${id}`)
-    .status.get();
-  return new Promise((resolve, reject) => {
-    if (response.body.status.completionTime) {
-      exec(`kubectl logs jobs/${name}-${id}`, async (error, stdout, stderr) => {
-        if (error) {
-          console.log(`error: ${error.message}`);
-          reject(id);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        await readProcessingTimes(combination, stdout);
-        resolve({ state: "success", data: combination });
-      });
-    } else {
-      reject({ state: "error", data: combination });
-    }
-  });
+  try {
+    const response = await client.apis.batch.v1
+      .namespaces("default")
+      .jobs(`${name}-${id}`)
+      .status.get();
+    return new Promise((resolve, reject) => {
+      if (response.body.status.completionTime) {
+        exec(
+          `kubectl logs jobs/${name}-${id}`,
+          async (error, stdout, stderr) => {
+            if (error) {
+              console.log(`error: ${error.message}`);
+              resolve({ state: "error", data: combination });
+              return;
+            }
+            if (stderr) {
+              console.log(`stderr: ${stderr}`);
+              resolve({ state: "error", data: combination });
+              return;
+            }
+            readProcessingTimes(combination, stdout);
+            resolve({ state: "success", data: combination });
+          }
+        );
+      } else {
+        resolve({ state: "error", data: combination });
+      }
+    });
+  } catch (e) {
+    console.log("Error occured in logs getting", e);
+  }
 }
 
-async function readProcessingTimes(combination, log) {
+function readProcessingTimes(combination, log) {
   const { name, id } = combination;
   const userVal = log
     .substr(log.indexOf("user"), 15)
@@ -175,7 +196,7 @@ async function readProcessingTimes(combination, log) {
       .jobs(`${name}-${id}`)
       .delete();
     console.log(id, "userValue", userVal, "sysVal", sysVal, "realVal", realVal);
-    await writeToResultJSONOutput(combination, userVal, realVal, sysVal);
+    writeToResult(combination, userVal, realVal, sysVal);
   } catch (e) {
     console.log("Error occured in writing output and deletion");
   }
