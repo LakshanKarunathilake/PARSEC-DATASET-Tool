@@ -57,11 +57,9 @@ function createInitialJSON() {
 }
 
 function writeToResult({ id, name }, user, real, sys) {
-  return new Promise((resolve, reject) => {
-    results[id].usr = user;
-    results[id].real = real;
-    results[id].sys = sys;
-  });
+  results[id].usr = user;
+  results[id].real = real;
+  results[id].sys = sys;
 }
 
 /**
@@ -69,7 +67,10 @@ function writeToResult({ id, name }, user, real, sys) {
  * @param path
  * @param data
  */
-function writeTheResultsToFile(path = "./results.json", data = results) {
+function writeTheResultsToFile(
+  path = "./results.json",
+  data = JSON.stringify(results)
+) {
   try {
     fs.writeFileSync(path, data);
   } catch (e) {
@@ -79,6 +80,6 @@ function writeTheResultsToFile(path = "./results.json", data = results) {
 
 module.exports = {
   createInitialJSON,
-  writeToResultJSONOutput: writeToResult,
+  writeToResult,
   writeTheResultsToFile
 };
