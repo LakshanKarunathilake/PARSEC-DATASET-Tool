@@ -28,28 +28,31 @@ function createInitialJSON() {
   applications.forEach(application => {
     const availableCompilers = compilers[application];
     availableCompilers.forEach(compiler => {
-      inputSets.forEach(input => {
-        record.name = application;
-        record.compiler = compiler;
-        record.input = input;
-        if (compiler === "gcc") {
-          for (let i = 1; i <= 1; i = i + 1) {
-            record.threads = 1;
-            record.cores = i;
+      record.name = application;
+      record.compiler = compiler;
+      if (compiler === "gcc") {
+        for (let i = 1; i <= 1; i = i + 1) {
+          record.threads = 1;
+          record.cores = i;
+          inputSets.forEach(input => {
+            record.input = input;
             record.id = row_index++;
             DATA[record.id] = { ...record };
-          }
-        } else {
-          threads.forEach(number => {
-            for (let i = 1; i <= 32; i = i + 1) {
-              record.threads = number;
-              record.cores = i;
-              record.id = row_index++;
-              DATA[record.id] = { ...record };
-            }
           });
         }
-      });
+      } else {
+        threads.forEach(number => {
+          for (let i = 1; i <= 32; i = i + 1) {
+            record.threads = number;
+            record.cores = i;
+            inputSets.forEach(input => {
+              record.input = input;
+              record.id = row_index++;
+              DATA[record.id] = { ...record };
+            });
+          }
+        });
+      }
     });
   });
   results = DATA;

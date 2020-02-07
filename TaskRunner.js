@@ -142,37 +142,30 @@ async function startReadingJobs(resolvedPromises) {
 async function getLogsOfJob(combination) {
   const { id, name } = combination;
   const client = new Client({ version: "1.9" });
-  try {
-    const response = await client.apis.batch.v1
-      .namespaces("default")
-      .jobs(`${name}-${id}`)
-      .status.get();
-    return new Promise((resolve, reject) => {
-      if (response.body.status.completionTime) {
-        exec(
-          `kubectl logs jobs/${name}-${id}`,
-          async (error, stdout, stderr) => {
-            if (error) {
-              console.log(`error: ${error.message}`);
-              resolve({ state: "error", data: combination });
-              return;
-            }
-            if (stderr) {
-              console.log(`stderr: ${stderr}`);
-              resolve({ state: "error", data: combination });
-              return;
-            }
-            readProcessingTimes(combination, stdout);
-            resolve({ state: "success", data: combination });
-          }
-        );
-      } else {
-        resolve({ state: "error", data: combination });
-      }
-    });
-  } catch (e) {
-    console.log("Error occured in logs getting", e);
-  }
+  const response = await client.apis.batch.v1
+    .namespaces("default")
+    .jobs(`${name}-${id}`)
+    .status.get();
+  return new Promise((resolve, reject) => {
+    if (response.body.status.completionTime) {
+      exec(`kubectl logs jobs/${name}-${id}`, async (error, stdout, stderr) => {
+        if (error) {
+          console.log(`error: ${error.message}`);
+          resolve({ state: "error", data: combination });
+          return;
+        }
+        if (stderr) {
+          console.log(`stderr: ${stderr}`);
+          resolve({ state: "error", data: combination });
+          return;
+        }
+        readProcessingTimes(combination, stdout);
+        resolve({ state: "success", data: combination });
+      });
+    } else {
+      resolve({ state: "error", data: combination });
+    }
+  });
 }
 
 function readProcessingTimes(combination, log) {
