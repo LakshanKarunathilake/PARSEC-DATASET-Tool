@@ -14,6 +14,9 @@ let results;
  * Create the initial CSV file for the dataset preparation
  */
 function createInitialJSON() {
+  const resultData = fs.readFileSync("results.json");
+  results = JSON.parse(resultData);
+
   const record = {
     id: "",
     name: "",
@@ -53,7 +56,7 @@ function createInitialJSON() {
       }
     });
   });
-  results = DATA;
+  // results = DATA;
   writeTheResultsToFile("./parameter-combination.json", JSON.stringify(DATA));
 }
 
