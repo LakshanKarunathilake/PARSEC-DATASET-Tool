@@ -11,42 +11,42 @@ let combinationsFinished = false;
  */
 async function traversInParameterCombination() {
   // Reading from the csv file
-  // fs.readFile("parameter-combination.json", async (err, data) => {
-  //   if (err) {
-  //     console.log("Error reading json file", err);
-  //   }
-  //   combinations = JSON.parse(data);
-  //
-  //   let iteration = 1;
-  //   let promises = [];
-  //   let resolvedPromises = [];
-  //   for (const combination of Object.values(combinations)) {
-  //     console.log("creating job", combination.id);
-  //     try {
-  //       promises.push(createTask(combination));
-  //       resolvedPromises.push(combination);
-  //       if (promises.length === 100) {
-  //         console.log("+=============== Resolveing promises");
-  //         await Promise.all(promises);
-  //         console.log("=================Resolved Promises");
-  //         await startReadingJobs(resolvedPromises);
-  //         promises = [];
-  //         resolvedPromises = [];
-  //       }
-  //       if (Object.keys(combinations).length === iteration) {
-  //         console.log("===========================================");
-  //         console.log("Combinations finished");
-  //         console.log("===========================================");
-  //         writeTheResultsToFile();
-  //         await reRunErrorfullCombinations();
-  //       }
-  //       iteration++;
-  //     } catch (e) {
-  //       console.log("Error occured while task creation", e);
-  //       writeTheResultsToFile();
-  //     }
-  //   }
-  // });
+  fs.readFile("parameter-combination.json", async (err, data) => {
+    if (err) {
+      console.log("Error reading json file", err);
+    }
+    combinations = JSON.parse(data);
+
+    let iteration = 1;
+    let promises = [];
+    let resolvedPromises = [];
+    for (const combination of Object.values(combinations)) {
+      console.log("creating job", combination.id);
+      try {
+        promises.push(createTask(combination));
+        resolvedPromises.push(combination);
+        if (promises.length === 100) {
+          console.log("+=============== Resolveing promises");
+          await Promise.all(promises);
+          console.log("=================Resolved Promises");
+          await startReadingJobs(resolvedPromises);
+          promises = [];
+          resolvedPromises = [];
+        }
+        if (Object.keys(combinations).length === iteration) {
+          console.log("===========================================");
+          console.log("Combinations finished");
+          console.log("===========================================");
+          writeTheResultsToFile();
+          await reRunErrorfullCombinations();
+        }
+        iteration++;
+      } catch (e) {
+        console.log("Error occured while task creation", e);
+        writeTheResultsToFile();
+      }
+    }
+  });
 }
 
 function createTask({ name, input, compiler, threads, cores, id }) {
@@ -208,7 +208,7 @@ async function reRunErrorfullCombinations() {
     let promises = [];
     let resolvedPromises = [];
     for (const combination of Object.values(combinations)) {
-      if (combination.usr === 0) {
+      if (combination.usr === 0 || combination.usr === '') {
         console.log("creating job", combination.id);
         try {
           promises.push(createTask(combination));
