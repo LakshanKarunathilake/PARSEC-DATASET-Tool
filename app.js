@@ -1,9 +1,15 @@
-const { createInitialJSON } = require("./JSONHandler");
-const { traversInParameterCombination } = require("./TaskRunner");
+const { createInitialJSON, writeTheResultsToFile } = require("./JSONHandler");
+const {
+  traversInParameterCombination,
+  reRunErrorfullCombinations
+} = require("./TaskRunner");
 const { execSync } = require("child_process");
 
+const command0 =
+  "gcloud auth activate-service-account lakshankarunathilake@sms-311.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
+
 const command1 =
-  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
+  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project sms-311";
 const command2 = "kubectl cluster-info";
 
 runCommand()
@@ -11,21 +17,25 @@ runCommand()
     createInitialJSON();
   })
   .then(() => {
-    traversInParameterCombination();
+    reRunErrorfullCombinations();
+    // traversInParameterCombination();
   });
 
 setInterval(async () => {
+  console.log("STarting time", new Date().getTime());
   await runCommand();
-}, 600000);
+  writeTheResultsToFile();
+}, 1800000);
 
 async function runCommand() {
   return new Promise((resolve, reject) => {
     try {
-      console.log("run1");
+      const d0 = execSync(command0).toString();
+      console.log("run1", d0);
       const d1 = execSync(command1).toString();
-      console.log("run2",d1);
+      console.log("run2", d1);
       const d2 = execSync(command2).toString();
-      console.log("run3",d2);
+      console.log("run3", d2);
       resolve();
     } catch (e) {
       console.log("error", e);
