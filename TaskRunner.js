@@ -98,9 +98,13 @@ function createTask({ name, input, compiler, threads, cores, id }) {
   return client.apis.batch.v1.namespaces("default").jobs.post({ body: job });
 }
 
-async function startReadingJobs(resolvedPromises) {
+async function startReadingJobs(resolvedPromises, condition) {
   let pendingCombinations = resolvedPromises.concat(unCompletedCombinations);
   let iteration = 1;
+  let stopCount = 50;
+  if (condition) {
+    stopCount = 0;
+  }
   do {
     let promises = [];
     let unresolvedPromises = [];
@@ -132,7 +136,7 @@ async function startReadingJobs(resolvedPromises) {
     }
     pendingCombinations = unresolvedPromises;
     iteration++;
-  } while (pendingCombinations.length > 50 || combinationsFinished);
+  } while (pendingCombinations.length > stopCount || combinationsFinished);
   unCompletedCombinations = pendingCombinations;
   console.log("===========================================");
   console.log("Finished reading logs");
@@ -208,20 +212,22 @@ async function reRunErrorfullCombinations() {
     let promises = [];
     let resolvedPromises = [];
     for (const combination of Object.values(combinations)) {
-      if (combination.usr === 0 || combination.usr === '') {
+      if (combination.usr === 0 || combination.usr === "") {
         console.log("creating job", combination.id);
         try {
           promises.push(createTask(combination));
           resolvedPromises.push(combination);
-          if (promises.length === 100) {
+          const mainCondition = Object.keys(combinations).length === iteration;
+          if (promises.length === 2 ) {
             console.log("+=============== Resolveing promises");
             await Promise.all(promises);
             console.log("=================Resolved Promises");
-            await startReadingJobs(resolvedPromises);
+            await startReadingJobs(resolvedPromises, true);
+            writeTheResultsToFile();
             promises = [];
             resolvedPromises = [];
           }
-          if (Object.keys(combinations).length === iteration) {
+          if (mainCondition) {
             console.log("===========================================");
             console.log("Combinations finished");
             console.log("===========================================");
