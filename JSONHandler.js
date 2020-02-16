@@ -77,6 +77,7 @@ function writeTheResultsToFile(
 ) {
   try {
     fs.writeFileSync(path, data);
+      console.log('Written final results')
   } catch (e) {
     console.log("Error creation file in the location", path, e);
   }
