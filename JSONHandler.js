@@ -66,6 +66,7 @@ function writeToResult({ id, name }, user, real, sys) {
   results[id].sys = sys;
 }
 
+
 /**
  * Writing data to a file
  * @param path
