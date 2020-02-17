@@ -10,5 +10,7 @@ import pandas as pd
 
 data = pd.read_csv('results.csv')
 print(data.head())
+for col in data['real']: 
+    print(col) 
 
 
