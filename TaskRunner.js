@@ -169,15 +169,63 @@ async function readProcessingTimes(combination, log) {
     .replace("\t", "");
   const client = new Client({ version: "1.9" });
 
-  client.apis.batch.v1
-    .namespaces("default")
-    .jobs(`${name}-${id}`)
-    .delete()
-    .then(() => {
-      console.log(`Job ${name}-${id} is deleted`);
-    });
-  console.log("userValue", userVal, "sysVal", sysVal, "realVal", realVal);
-  writeToResultJSONOutput(combination, userVal, realVal, sysVal);
+async function reRunErrorfullCombinations() {
+  // Reading from the csv file
+  fs.readFile("results.json", async (err, data) => {
+    if (err) {
+      console.log("Error reading json file", err);
+    }
+    combinations = JSON.parse(data);
+
+    let iteration = 0;
+    let promises = [];
+    let resolvedPromises = [];
+    const emptyCombinations = Object.values(combinations).filter(
+      combination => combination.real === 0 && combination.real === ""
+    );
+    for (const combination of emptyCombinations) {
+      console.log("creating job", combination.id);
+      try {
+        promises.push(createTask(combination));
+        resolvedPromises.push(combination);
+        if (
+          promises.length === 50 ||
+          emptyCombinations.length - iteration < 50
+        ) {
+          console.log("+=============== Resolveing promises");
+          await Promise.all(promises);
+          console.log("=================Resolved Promises");
+          await startReadingJobs(resolvedPromises, true);
+          writeTheResultsToFile();
+          promises = [];
+          resolvedPromises = [];
+        }
+        iteration++;
+      } catch (e) {
+        console.log("Error occured while task creation", e);
+        writeTheResultsToFile();
+      }
+    }
+    console.log("===========================================");
+    console.log("Combinations finished");
+    console.log("===========================================");
+    writeTheResultsToFile();
+
+    //  Re run combinations if there are still pending combinations
+    await checkIfEmptyRecordsExist();
+  });
+}
+
+async function checkIfEmptyRecordsExist() {
+  const data = fs.readFileSync("results.json");
+  const emptyCombinations = Object.values(data).filter(
+    combination => combination.real === 0 && combination.real === ""
+  );
+  if (emptyCombinations.length > 0) {
+    await reRunErrorfullCombinations();
+  } else {
+    console.log("Empty combinations can not be found");
+  }
 }
 
 module.exports = {

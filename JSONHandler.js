@@ -72,17 +72,21 @@ function createInitialJSON() {
   });
 }
 
-function writeToResultJSONOutput({ id, name }, user, real, sys) {
-  const record = DATA[id];
-  record.usr = user;
-  record.real = real;
-  record.sys = sys;
-  fs.appendFile("./results.json", JSON.stringify(record), err => {
-    if (err) {
-      console.log("error occured", err);
-    }
-    console.log("Parameter combinations are generated successfully");
-  });
+/**
+ * Writing data to a file
+ * @param path
+ * @param data
+ */
+function writeTheResultsToFile(
+  path = "./results.json",
+  data = JSON.stringify(results)
+) {
+  try {
+    fs.writeFileSync(path, data);
+    console.log("Written final results");
+  } catch (e) {
+    console.log("Error creation file in the location", path, e);
+  }
 }
 
 module.exports = { createInitialJSON, writeToResultJSONOutput };

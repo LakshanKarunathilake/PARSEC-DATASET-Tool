@@ -1,4 +1,4 @@
-const { createInitialJSON } = require("./JSONHandler");
+const { createInitialJSON, writeTheResultsToFile } = require("./JSONHandler");
 const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
 
