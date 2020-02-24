@@ -1,8 +1,5 @@
 const { createInitialJSON, writeTheResultsToFile } = require("./JSONHandler");
-const {
-  traversInParameterCombination,
-  reRunErrorfullCombinations
-} = require("./TaskRunner");
+const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
 
 const command0 =
@@ -17,8 +14,7 @@ runCommand()
     createInitialJSON();
   })
   .then(() => {
-    reRunErrorfullCombinations();
-    // traversInParameterCombination();
+    traversInParameterCombination();
   });
 
 setInterval(async () => {
