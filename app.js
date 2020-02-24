@@ -3,10 +3,10 @@ const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
 
 const command0 =
-  "gcloud auth activate-service-account lakshankarunathilake@sms-311.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
+  "gcloud auth activate-service-account test-350@pipeline-concurrency.iam.gserviceaccount.com --key-file=./pipeline-concurrency.json --project=pipeline-concurrency";
 
 const command1 =
-  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project sms-311";
+  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
 const command2 = "kubectl cluster-info";
 
 runCommand()
@@ -18,10 +18,9 @@ runCommand()
   });
 
 setInterval(async () => {
-  console.log("STarting time", new Date().getTime());
   await runCommand();
-  writeTheResultsToFile();
-}, 1800000);
+}, 60000);
+// }, 3000000);
 
 async function runCommand() {
   return new Promise((resolve, reject) => {

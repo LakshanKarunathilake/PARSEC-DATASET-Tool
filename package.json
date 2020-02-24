@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@google-cloud/container": "^1.5.0",
+    "@r3wt/log": "^1.0.3",
     "body-parser": "^1.19.0",
     "csv-parser": "^2.3.2",
     "csv-writer": "^1.6.0",
