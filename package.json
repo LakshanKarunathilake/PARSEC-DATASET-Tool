@@ -16,10 +16,10 @@
     "csv-parser": "^2.3.2",
     "csv-writer": "^1.6.0",
     "express": "^4.17.1",
-    "kubernetes-client": "^8.3.6",
-    "prettier": "^1.19.1"
+    "kubernetes-client": "^8.3.6"
   },
   "devDependencies": {
-    "google-auth-library": "^5.9.1"
+    "google-auth-library": "^5.9.1",
+    "prettier": "1.19.1"
   }
 }
