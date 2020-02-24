@@ -66,7 +66,6 @@ function writeToResult({ id, name }, user, real, sys) {
   results[id].sys = sys;
 }
 
-
 /**
  * Writing data to a file
  * @param path
@@ -78,7 +77,7 @@ function writeTheResultsToFile(
 ) {
   try {
     fs.writeFileSync(path, data);
-      console.log('Written final results')
+    console.log("Written final results");
   } catch (e) {
     console.log("Error creation file in the location", path, e);
   }
