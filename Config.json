@@ -1,0 +1,41 @@
+{
+  "minCores": 1,
+  "maxCores": 32,
+  "coreStep": 1,
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "inputs": [
+    "test",
+    "simdev",
+    "simsmall",
+    "simmedium",
+    "simlarge",
+    "native"
+  ],
+  "applications": [
+    "ferret",
+    "dedup",
+    "x264"
+  ],
+  "compilers": {
+    "ferret": [
+      "gcc",
+      "gcc-pthreads",
+      "gcc-tbb"
+    ],
+    "dedup": [
+      "gcc",
+      "gcc-pthreads"
+    ],
+    "x264": [
+      "gcc",
+      "gcc-pthreads"
+    ]
+  }
+}
