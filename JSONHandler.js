@@ -1,20 +1,10 @@
 const fs = require("fs");
+const config = require("./Config");
 
-const applications = ["ferret", "dedup", "x264"];
-const compilers = {
-  ferret: ["gcc", "gcc-pthreads", "gcc-tbb"],
-  dedup: ["gcc", "gcc-pthreads"],
-  x264: ["gcc", "gcc-pthreads"]
-};
-const inputSets = [
-  "test",
-  "simdev",
-  "simsmall",
-  "simmedium",
-  "simlarge",
-  "native"
-];
-const threads = [1, 2, 4, 8, 16, 32, 64, 128];
+const applications = config.applications;
+const compilers = config.compilers;
+const inputSets = config.inputs;
+const threads = config.threads;
 const DATA = {};
 let results;
 /**
@@ -48,7 +38,11 @@ function createInitialJSON() {
           }
         } else {
           threads.forEach(number => {
-            for (let i = 1; i <= 95; i = i + 1) {
+            for (
+              let i = config.minCores;
+              i <= config.maxCores;
+              i = i + config.coreStep
+            ) {
               record.threads = number;
               record.cores = i;
               record.id = row_index++;
