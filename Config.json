@@ -1,6 +1,6 @@
 {
   "minCores": 1,
-  "maxCores": 32,
+  "maxCores": 8,
   "coreStep": 1,
   "threads": [
     1,
@@ -11,31 +11,22 @@
     32
   ],
   "inputs": [
-    "test",
-    "simdev",
-    "simsmall",
-    "simmedium",
-    "simlarge",
     "native"
   ],
   "applications": [
-    "ferret",
-    "dedup",
-    "x264"
+    "dedup"
   ],
   "compilers": {
     "ferret": [
-      "gcc",
-      "gcc-pthreads",
-      "gcc-tbb"
+      "gcc-pthreads"
     ],
     "dedup": [
-      "gcc",
       "gcc-pthreads"
     ],
     "x264": [
       "gcc",
       "gcc-pthreads"
     ]
-  }
+  },
+  "projectName": "pipeline-concurrency"
 }

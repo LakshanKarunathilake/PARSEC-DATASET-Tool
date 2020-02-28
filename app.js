@@ -2,10 +2,12 @@ const { createInitialJSON, writeTheResultsToFile } = require("./JSONHandler");
 const { traversInParameterCombination } = require("./TaskRunner");
 const { execSync } = require("child_process");
 const keyFile = require("./pipeline-concurrency");
-const command0 = `gcloud auth activate-service-account ${keyFile.client_email}  --key-file=./pipeline-concurrency.json --project=pipeline-concurrency`;
+const config = require("./Config");
+
+const command0 = `gcloud auth activate-service-account ${keyFile.client_email}  --key-file=./pipeline-concurrency.json --project=${config.projectName}`;
 
 const command1 =
-  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project pipeline-concurrency ";
+  "gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project=${config.projectName} ";
 const command2 = "kubectl cluster-info";
 
 runCommand()
