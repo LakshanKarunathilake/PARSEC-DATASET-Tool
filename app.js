@@ -6,7 +6,7 @@ const config = require("./Config");
 
 const command0 = `gcloud auth activate-service-account ${keyFile.client_email}  --key-file=./pipeline-concurrency.json --project=${config.projectName}`;
 
-const command1 = `gcloud container clusters get-credentials parsec-runner --zone us-central1-a --project=${config.projectName} `;
+const command1 = `gcloud container clusters get-credentials pipeline-concurrency --zone us-central1-a --project pipeline-concurrency-267205`;
 const command2 = "kubectl cluster-info";
 
 runCommand()

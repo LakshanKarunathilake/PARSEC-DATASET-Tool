@@ -1,6 +1,6 @@
 {
   "minCores": 1,
-  "maxCores": 8,
+  "maxCores": 4,
   "coreStep": 1,
   "threads": [
     1,

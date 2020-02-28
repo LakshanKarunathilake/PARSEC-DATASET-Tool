@@ -24,7 +24,7 @@ async function traversInParameterCombination() {
       try {
         promises.push(createTask(combination));
         resolvedCombinations.push(combination);
-        if (promises.length === 50) {
+        if (promises.length === 10) {
           await Promise.all(promises);
           startReadingJobs(resolvedCombinations);
           resolvedCombinations = [];
