@@ -1,7 +1,7 @@
 const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
-const { writeToResultJSONOutput } = require("./JSONHandler");
+const { writeTheResultsToFile } = require("./JSONHandler");
 let combinations;
 
 /**
@@ -153,7 +153,7 @@ async function getLogsOfJob(name, id) {
     });
 }
 
-async function readProcessingTimes(combination, log) {
+function readProcessingTimes(combination, log) {
   const { name, id } = combination;
   const userVal = log
     .substr(log.indexOf("user"), 15)
@@ -168,7 +168,17 @@ async function readProcessingTimes(combination, log) {
     .substr(4, 9)
     .replace("\t", "");
   const client = new Client({ version: "1.9" });
-
+  try {
+    client.apis.batch.v1
+      .namespaces("default")
+      .jobs(`${name}-${id}`)
+      .delete();
+    console.log(id, "userValue", userVal, "sysVal", sysVal, "realVal", realVal);
+    writeToResult(combination, userVal, realVal, sysVal);
+  } catch (e) {
+    console.log("Error occured in writing output and deletion");
+  }
+}
 async function reRunErrorfullCombinations() {
   // Reading from the csv file
   fs.readFile("results.json", async (err, data) => {
