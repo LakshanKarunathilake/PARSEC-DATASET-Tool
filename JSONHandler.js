@@ -83,4 +83,4 @@ function writeTheResultsToFile(
   }
 }
 
-module.exports = { createInitialJSON, writeToResultJSONOutput };
+module.exports = { createInitialJSON, writeTheResultsToFile };
