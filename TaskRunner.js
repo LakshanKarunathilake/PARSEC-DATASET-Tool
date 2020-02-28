@@ -1,7 +1,7 @@
 const Client = require("kubernetes-client").Client;
 const fs = require("fs");
 const { exec } = require("child_process");
-const { writeTheResultsToFile } = require("./JSONHandler");
+const { writeTheResultsToFile, writeToResult } = require("./JSONHandler");
 let combinations;
 
 /**

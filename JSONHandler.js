@@ -66,6 +66,12 @@ function createInitialJSON() {
   });
 }
 
+function writeToResult({ id, name }, user, real, sys) {
+  results[id].usr = user;
+  results[id].real = real;
+  results[id].sys = sys;
+}
+
 /**
  * Writing data to a file
  * @param path
@@ -83,4 +89,4 @@ function writeTheResultsToFile(
   }
 }
 
-module.exports = { createInitialJSON, writeTheResultsToFile };
+module.exports = { createInitialJSON, writeTheResultsToFile, writeToResult };
